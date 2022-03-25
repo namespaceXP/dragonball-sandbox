@@ -12,8 +12,10 @@ use std::time::Duration;
 use downcast_rs::{impl_downcast, Downcast};
 
 mod inner;
+mod tcp;
 
 pub use self::inner::{VsockInnerBackend, VsockInnerConnector, VsockInnerStream};
+pub use self::tcp::VsockTcpBackend;
 
 /// The type of vsock backend.
 #[derive(PartialEq, Eq, Hash, Debug, Clone)]

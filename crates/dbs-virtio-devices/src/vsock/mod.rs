@@ -6,3 +6,12 @@
 // found in the THIRD-PARTY file.
 
 pub mod backend;
+
+#[derive(Debug, thiserror::Error)]
+pub enum VsockError {
+    /// vsock backend error
+    #[error("Vsock backend error: {0}")]
+    Backend(#[source] std::io::Error),
+}
+
+type Result<T> = std::result::Result<T, VsockError>;
