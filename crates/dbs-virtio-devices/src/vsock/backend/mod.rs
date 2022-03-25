@@ -13,9 +13,11 @@ use downcast_rs::{impl_downcast, Downcast};
 
 mod inner;
 mod tcp;
+mod uds;
 
 pub use self::inner::{VsockInnerBackend, VsockInnerConnector, VsockInnerStream};
 pub use self::tcp::VsockTcpBackend;
+pub use self::uds::VsockUnixBackend;
 
 /// The type of vsock backend.
 #[derive(PartialEq, Eq, Hash, Debug, Clone)]
