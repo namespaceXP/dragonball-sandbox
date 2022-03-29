@@ -13,8 +13,12 @@ pub mod muxer_rxq;
 
 use super::backend::{VsockBackend, VsockBackendType};
 use super::{VsockChannel, VsockEpollListener};
+pub use muxer_impl::VsockMuxer;
 
 mod defs {
+    /// Maximum number of established connections that we can handle.
+    pub const MAX_CONNECTIONS: usize = 1023;
+
     /// Size of the muxer RX packet queue.
     pub const MUXER_RXQ_SIZE: usize = 256;
 
@@ -25,7 +29,47 @@ mod defs {
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug, thiserror::Error)]
-pub enum Error {}
+pub enum Error {
+    /// Error registering a new epoll-listening FD.
+    #[error("error when registering a new epoll-listening FD: {0}")]
+    EpollAdd(#[source] std::io::Error),
+
+    /// Error creating an epoll FD.
+    #[error("error when creating an epoll: {0}")]
+    EpollFdCreate(#[source] std::io::Error),
+
+    /// The host made an invalid vsock port connection request.
+    #[error("invalid vsock prot connection request")]
+    InvalidPortRequest,
+
+    /// Cannot add muxer backend when vsock device is activated.
+    #[error("cannot add muxer backend when vsock device is activated")]
+    BackendAddAfterActivated,
+
+    /// Error accepting a new connection from backend.
+    #[error("error accepting a new connection from backend: {0}")]
+    BackendAccept(#[source] std::io::Error),
+
+    /// Error binding to the backend.
+    #[error("error binding to the backend: {0}")]
+    BackendBind(#[source] std::io::Error),
+
+    /// Error connecting to a backend.
+    #[error("error connecting to a backend: {0}")]
+    BackendConnect(#[source] std::io::Error),
+
+    /// Error reading from backend.
+    #[error("error reading from backend: {0}")]
+    BackendRead(#[source] std::io::Error),
+
+    /// Muxer connection limit reached.
+    #[error("muxer reaches connection limit")]
+    TooManyConnections,
+
+    /// Backend type has been registered.
+    #[error("backend type has been registered: {0}")]
+    BackendRegistered(VsockBackendType),
+}
 
 /// The vsock generic muxer, which is basically an epoll-event-driven vsock
 /// channel. Currently, the only implementation we have is
