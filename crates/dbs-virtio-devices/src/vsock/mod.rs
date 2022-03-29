@@ -7,6 +7,7 @@
 
 pub mod backend;
 pub mod csm;
+mod epoll_handler;
 pub mod muxer;
 mod packet;
 
@@ -17,6 +18,16 @@ use vm_memory::GuestMemoryError;
 use self::packet::VsockPacket;
 
 mod defs {
+    /// RX queue event: the driver added available buffers to the RX queue.
+    pub const RXQ_EVENT: u32 = 0;
+    /// TX queue event: the driver added available buffers to the RX queue.
+    pub const TXQ_EVENT: u32 = 1;
+    /// Event queue event: the driver added available buffers to the event
+    /// queue.
+    pub const EVQ_EVENT: u32 = 2;
+    /// Backend event: the backend needs a kick.
+    pub const BACKEND_EVENT: u32 = 3;
+
     /// Max vsock packet data/buffer size.
     pub const MAX_PKT_BUF_SIZE: usize = 64 * 1024;
 
