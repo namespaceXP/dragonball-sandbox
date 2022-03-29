@@ -7,9 +7,16 @@
 /// `super::csm::VsockConnection` for handling vsock connection states. Check
 /// out `muxer.rs` for a more detailed explanation of the inner workings of this
 /// backend.
-///
+pub mod muxer_impl;
+pub mod muxer_killq;
+
 use super::backend::{VsockBackend, VsockBackendType};
 use super::{VsockChannel, VsockEpollListener};
+
+mod defs {
+    /// Size of the muxer connection kill queue.
+    pub const MUXER_KILLQ_SIZE: usize = 128;
+}
 
 pub type Result<T> = std::result::Result<T, Error>;
 
