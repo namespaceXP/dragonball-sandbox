@@ -43,3 +43,13 @@ pub struct ConnMapKey {
     local_port: u32,
     peer_port: u32,
 }
+
+/// A muxer RX queue item.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum MuxerRx {
+    /// The packet must be fetched from the connection identified by
+    /// `ConnMapKey`.
+    ConnRx(ConnMapKey),
+    /// The muxer must produce an RST packet.
+    RstPkt { local_port: u32, peer_port: u32 },
+}

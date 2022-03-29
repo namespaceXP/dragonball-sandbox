@@ -9,11 +9,15 @@
 /// backend.
 pub mod muxer_impl;
 pub mod muxer_killq;
+pub mod muxer_rxq;
 
 use super::backend::{VsockBackend, VsockBackendType};
 use super::{VsockChannel, VsockEpollListener};
 
 mod defs {
+    /// Size of the muxer RX packet queue.
+    pub const MUXER_RXQ_SIZE: usize = 256;
+
     /// Size of the muxer connection kill queue.
     pub const MUXER_KILLQ_SIZE: usize = 128;
 }
