@@ -506,7 +506,10 @@ impl VirtioDeviceInfo {
     }
 
     /// Validate size of queues and queue eventfds.
-    pub fn check_queue_sizes(&self, queues: &[VirtioQueueConfig]) -> ActivateResult {
+    pub fn check_queue_sizes<Q: QueueStateT>(
+        &self,
+        queues: &[VirtioQueueConfig<Q>],
+    ) -> ActivateResult {
         if queues.is_empty() || queues.len() != self.queue_sizes.len() {
             error!(
                 "{}: invalid configuration: maximum {} queue(s), got {} queues",
@@ -532,6 +535,16 @@ impl VirtioDeviceInfo {
                 format!("remove_event_handler failed: {:?}", e),
             ))
         })
+    }
+}
+
+impl PartialEq for VirtioDeviceInfo {
+    fn eq(&self, other: &VirtioDeviceInfo) -> bool {
+        self.driver_name == other.driver_name
+            && self.avail_features() == other.avail_features()
+            && self.acked_features() == other.acked_features()
+            && self.queue_sizes == other.queue_sizes
+            && self.config_space == other.config_space
     }
 }
 
@@ -796,7 +809,9 @@ pub(crate) mod tests {
         // test device info check_queue_sizes
         let queue_size = Vec::new();
         assert!(matches!(
-            device.device_info.check_queue_sizes(&queue_size),
+            device
+                .device_info
+                .check_queue_sizes::<QueueState>(&queue_size),
             Err(ActivateError::InvalidParam)
         ));
 

@@ -7,6 +7,7 @@
 
 pub mod backend;
 pub mod csm;
+mod device;
 mod epoll_handler;
 pub mod muxer;
 mod packet;
@@ -15,6 +16,10 @@ use std::os::unix::io::AsRawFd;
 
 use vm_memory::GuestMemoryError;
 
+pub use self::defs::{NUM_QUEUES, QUEUE_SIZES};
+pub use self::device::Vsock;
+use self::muxer::Error as MuxerError;
+pub use self::muxer::VsockMuxer;
 use self::packet::VsockPacket;
 
 mod defs {
@@ -27,6 +32,13 @@ mod defs {
     pub const EVQ_EVENT: u32 = 2;
     /// Backend event: the backend needs a kick.
     pub const BACKEND_EVENT: u32 = 3;
+
+    /// Number of virtio queues.
+    pub const NUM_QUEUES: usize = 3;
+    /// Virtio queue sizes, in number of descriptor chain heads.
+    ///
+    /// There are 3 queues for a virtio device (in this order): RX, TX, Event
+    pub const QUEUE_SIZES: &[u16] = &[256; NUM_QUEUES];
 
     /// Max vsock packet data/buffer size.
     pub const MAX_PKT_BUF_SIZE: usize = 64 * 1024;
@@ -109,6 +121,9 @@ pub enum VsockError {
     /// The vsock header `len` field holds an invalid value.
     #[error("The vsock header `len` field holds an invalid value {0}")]
     InvalidPktLen(u32),
+    /// vsock muxer error
+    #[error("Vsock muxer error: {0}")]
+    Muxer(#[source] MuxerError),
     /// A data fetch was attempted when no data was available.
     #[error("A data fetch was attempted when no data was available")]
     NoData,
