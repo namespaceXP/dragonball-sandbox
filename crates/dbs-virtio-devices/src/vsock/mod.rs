@@ -5,6 +5,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the THIRD-PARTY file.
 
+pub mod backend;
+
 mod defs {
     /// RX queue event: the driver added available buffers to the RX queue.
     pub const RXQ_EVENT: u32 = 0;
@@ -82,6 +84,10 @@ mod defs {
 }
 
 #[derive(Debug, thiserror::Error)]
-pub enum VsockError {}
+pub enum VsockError {
+    /// vsock backend error
+    #[error("Vsock backend error: {0}")]
+    Backend(#[source] std::io::Error),
+}
 
 type Result<T> = std::result::Result<T, VsockError>;
