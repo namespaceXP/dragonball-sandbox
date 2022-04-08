@@ -28,3 +28,4 @@ vm-memory = { version = "0.7.0", features = [ "backend-mmap", "backend-atomic" ]
 
 [features]
 virtio-mmio = []
+virtio-vsock = ["virtio-mmio"]
