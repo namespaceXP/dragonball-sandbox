@@ -6,6 +6,7 @@
 // found in the THIRD-PARTY file.
 
 pub mod backend;
+pub mod csm;
 mod packet;
 
 use std::os::unix::io::AsRawFd;
